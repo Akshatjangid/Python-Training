@@ -1,0 +1,46 @@
+Logistic Regression -->
+
+--> Classification Algo.
+--> Binary Outcomes --> 1 Class --> Loss/Win --> 0 / 1
+--> Probability --> 0 / 1
+
+
+
+
+                   Linear Regression                 vs                   Logistic Regression
+
+Output              Continoues                                                 Discrete
+
+Function              Linear Equation                                          Sigmoid
+
+Goal                 Predict Value                                          Predict Probabbility
+
+
+
+Sigmoid Function  --->     o-(z)= 1/(1+e^-z)
+
+                            z = mx + C
+                            y = M1 X1 + M2 X2 + ---- Mn + Xn
+
+
+X1 = Howes studied                                        X1 | X2  | Y
+Y1= Attendence                                             6 | 80                                
+                                                                               Wo = -5  , W1= 0.8   ,W2 = 0.05
+  y = pass  OR  fail
+       1         0
+
+       Z = Wo + W1 X1 + W2 X2
+       Z = -5  + 0.8*6  + 0.05 * 80              {    1  /  (  1 +   e^  -  3.8   )             }
+       Z = 3.8                               
+
+         
+
+
+
+         Log Loss Function
+
+    Log Loss = - [y.log(y)]   
+
+    y = actual price
+     ŷ  = pred Probabbility      full dataset
+
