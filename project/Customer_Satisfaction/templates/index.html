@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Airline Satisfaction Predictor</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: #f2f2f2;
+        }
+        .container {
+            margin-top: 40px;
+            max-width: 700px;
+            background: white;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+        }
+        .title {
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 30px;
+            text-align: center;
+            color: #007bff;
+        }
+        .form-label {
+            font-weight: 500;
+        }
+        .btn-primary {
+            width: 100%;
+        }
+        .result {
+            margin-top: 20px;
+            font-size: 20px;
+            font-weight: bold;
+            text-align: center;
+            color: green;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="title">Airline Customer Satisfaction Predictor</div>
+    <form action="/predict" method="post">
+
+        {% for field in [
+            'Age', 'Flight Distance', 'Inflight entertainment', 'Baggage handling',
+            'Cleanliness', 'Departure Delay in Minutes', 'Arrival Delay in Minutes',
+            'Gender_Male_1', 'Customer Type_disloyal Customer_1',
+            'Type of Travel_Personal Travel_1', 'Class_Eco_1', 'Class_Eco Plus_1'
+        ] %}
+        <div class="mb-3">
+            <label for="{{ field }}" class="form-label">{{ field.replace('_', ' ') }}</label>
+            <input type="number" class="form-control" name="{{ field }}" required>
+        </div>
+        {% endfor %}
+
+        <button type="submit" class="btn btn-primary">Predict</button>
+    </form>
+
+    {% if prediction_text %}
+        <div class="result mt-4">
+            {{ prediction_text }}
+        </div>
+    {% endif %}
+</div>
+</body>
+</html>
+
+
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Airline Satisfaction Predictor</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: #f2f2f2;
+        }
+        .container {
+            margin-top: 40px;
+            max-width: 700px;
+            background: white;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+        }
+        .title {
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 30px;
+            text-align: center;
+            color: #007bff;
+        }
+        .form-label {
+            font-weight: 500;
+        }
+        .btn-primary {
+            width: 100%;
+        }
+        .result {
+            margin-top: 20px;
+            font-size: 20px;
+            font-weight: bold;
+            text-align: center;
+            color: green;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="title">Airline Customer Satisfaction Predictor</div>
+    <form action="/predict" method="post">
+
+        {% for field in [
+            'Age', 'Flight Distance', 'Inflight entertainment', 'Baggage handling',
+            'Cleanliness', 'Departure Delay in Minutes', 'Arrival Delay in Minutes',
+            'Gender_Male_1', 'Customer Type_disloyal Customer_1',
+            'Type of Travel_Personal Travel_1', 'Class_Eco_1', 'Class_Eco Plus_1'
+        ] %}
+        <div class="mb-3">
+            <label for="{{ field }}" class="form-label">{{ field.replace('_', ' ') }}</label>
+            <input type="number" class="form-control" name="{{ field }}" required>
+        </div>
+        {% endfor %}
+
+        <button type="submit" class="btn btn-primary">Predict</button>
+    </form>
+
+    {% if prediction_text %}
+        <div class="result mt-4">
+            {{ prediction_text }}
+        </div>
+    {% endif %}
+</div>
+</body>
+</html> -->
+
+<!-- <!DOCTYPE html>
+<html>
+
+<head>
+    <title>Airline Customer Satisfaction Predictor</title>
+</head>
+
+<body>
+    <h2>Enter Passenger Details</h2>
+    <form action="/predict" method="post">
+
+        <input type="number" name="Age" placeholder="Age" required><br>
+        <input type="number" name="Flight Distance" placeholder="Flight Distance" required><br>
+        <input type="number" name="Inflight entertainment" placeholder="Inflight Entertainment (1-5)" required><br>
+        <input type="number" name="Baggage handling" placeholder="Baggage Handling (1-5)" required><br>
+        <input type="number" name="Cleanliness" placeholder="Cleanliness (1-5)" required><br>
+        <input type="number" name="Departure Delay in Minutes" placeholder="Departure Delay" required><br>
+        <input type="number" name="Arrival Delay in Minutes" placeholder="Arrival Delay" required><br>
+
+        <label>Gender: Male?</label>
+        <select name="Gender_Male_1">
+            <option value="1">Yes</option>
+            <option value="0">No</option>
+        </select><br>
+
+        <label>Customer Type: Disloyal?</label>
+        <select name="Customer Type_disloyal Customer_1">
+            <option value="1">Disloyal</option>
+            <option value="0">Loyal</option>
+        </select><br>
+
+        <label>Type of Travel: Personal?</label>
+        <select name="Type of Travel_Personal Travel_1">
+            <option value="1">Personal</option>
+            <option value="0">Business</option>
+        </select><br>
+
+        <label>Class: Economy?</label>
+        <select name="Class_Eco_1">
+            <option value="1">Eco</option>
+            <option value="0">Other</option>
+        </select><br>
+
+        <label>Class: Economy Plus?</label>
+        <select name="Class_Eco Plus_1">
+            <option value="1">Eco Plus</option>
+            <option value="0">Other</option>
+        </select><br>
+
+        <button type="submit">Predict</button>
+    </form>
+
+    {% if prediction_text %}
+    <h3>{{ prediction_text }}</h3>
+    {% endif %}
+</body>
+
+</html> -->
