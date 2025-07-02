@@ -60,11 +60,42 @@ def predict_api():
 
 @app.route('/history')
 def history():
-    import sqlite3
-    with sqlite3.connect('predictions.db') as conn:
+    with sqlite3.connect(DB_FILE) as conn:
         conn.row_factory = sqlite3.Row
         rows = conn.execute("SELECT * FROM predictions ORDER BY id DESC").fetchall()
     return render_template('history.html', rows=rows)
+
+from flask import send_file
+import csv
+import io
+
+@app.route('/delete_all')
+def delete_all():
+    with sqlite3.connect(DB_FILE) as conn:
+        conn.execute("DELETE FROM predictions")
+    return render_template('history.html', rows=[])
+
+@app.route('/download_csv')
+def download_csv():
+    with sqlite3.connect(DB_FILE) as conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM predictions ORDER BY id DESC")
+        rows = cursor.fetchall()
+
+        output = io.StringIO()
+        writer = csv.writer(output)
+        writer.writerow([description[0] for description in cursor.description])  # headers
+        writer.writerows(rows)
+
+        output.seek(0)
+
+        return send_file(
+            io.BytesIO(output.getvalue().encode()),
+            mimetype='text/csv',
+            as_attachment=True,
+            download_name='prediction_history.csv'
+        )
+
 
 
 # Dictionaries to map user-friendly names to numeric values
@@ -110,11 +141,15 @@ def predict():
                 VALUES (?, ?, ?, ?, ?, ?)
             ''', (kms_driven, age, power, owner_text, brand_text, predicted_price))
 
-        return render_template('result.html',
-                               prediction_text=f"Predicted Bike Price: ₹{round(predicted_price, 2)}")
+        # IMPORTANT CHANGE: Return JSON for the new UI, but can fall back to rendering a template
+        # for other uses if needed.
+        return jsonify({
+            'prediction_text': f"₹{round(predicted_price, 2)}"
+        })
 
     except Exception as e:
-        return f"Error: {e}"
+        # Return error as JSON too
+        return jsonify({'error': str(e)})
 
 
 

@@ -1,0 +1,20 @@
+                                     DECISION TREE
+>>> supervised learning algo.
+>> used for both class and reg.
+>> it has 3 nodes -->  root node ,decision node, terminal node/leaf node
+>> decision node are used to --> make decision 
+>> leaf node is used to --> output of decision node>> to built decision tree we follow CART Algo , --> may be(ID3,itentive debmisen)
+
+
+
+                                               Root ---> rooot nodr//target variable
+                                               |
+                                               /|
+                                              /
+                                             /
+                                            DN --> entropy IG  
+                                            /\
+                                           /  \
+                                          /    \
+                                         LN    LN
+ 

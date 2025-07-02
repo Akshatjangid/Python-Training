@@ -1,242 +1,306 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
-    <title>Used Bike Price Predictor</title>
+    <title>Bike Valuator HUD</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;700&family=Exo+2:ital,wght@1,900&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --primary-glow: #00e5ff;
+            --secondary-glow: #ff00e5;
+            --background-start: #050810;
+            --background-end: #12081a;
+            --text-color: #d0d0d0;
+            --border-color: rgba(0, 229, 255, 0.3);
+            --form-bg: rgba(0, 15, 30, 0.7);
+        }
+
         body {
-            font-family: Arial, sans-serif;
-            background: #f4f4f4;
+            font-family: 'Rajdhani', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: var(--background-start);
+            background-image: radial-gradient(circle at top left, var(--background-start) 0%, var(--background-end) 100%);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
         }
 
-        .container {
-            max-width: 500px;
-            background: white;
-            margin: 50px auto;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        .hud-container {
+            position: relative;
+            width: 600px;
+            height: 600px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
 
-        label {
-            font-weight: bold;
-            display: block;
-            margin-top: 15px;
+        /* --- Animated HUD Rings --- */
+        .ring {
+            position: absolute;
+            border-radius: 50%;
+            border: 1px solid;
+            animation: spin 20s linear infinite;
+        }
+        .ring-1 { width: 100%; height: 100%; border-color: var(--border-color); animation-duration: 45s; }
+        .ring-2 { width: 85%; height: 85%; border-color: var(--border-color); border-style: dashed; animation-duration: 30s; animation-direction: reverse; }
+        .ring-3 { width: 70%; height: 70%; border-color: var(--primary-glow); border-width: 2px; box-shadow: 0 0 20px var(--primary-glow); animation-duration: 25s; }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
         }
 
-        input,
-        select {
+        /* --- The Main Form Core --- */
+        .form-core {
+            position: relative;
+            width: 55%;
+            height: 55%;
+            background: var(--form-bg);
+            border-radius: 50%;
+            backdrop-filter: blur(5px);
+            border: 1px solid var(--border-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 20px;
+            box-shadow: inset 0 0 40px rgba(0,0,0,0.5);
+            z-index: 10;
+        }
+        
+        .form-step {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
             width: 100%;
+            animation: fadeInStep 0.5s ease-in-out forwards;
+        }
+
+        .form-step.active {
+            display: flex;
+        }
+
+        @keyframes fadeInStep {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        
+        label {
+            font-size: 20px;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--primary-glow);
+            margin-bottom: 15px;
+            letter-spacing: 1px;
+        }
+
+        input, select {
+            width: 80%;
             padding: 10px;
-            margin-top: 5px;
-            border-radius: 6px;
-            border: 1px solid #ccc;
+            background: rgba(0, 229, 255, 0.1);
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            color: #fff;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 18px;
+            text-align: center;
+        }
+
+        select { -webkit-appearance: none; appearance: none; }
+        select option { background: var(--background-end); color: #fff; }
+
+        .navigation-buttons {
+            display: flex;
+            justify-content: space-around;
+            width: 80%;
+            margin-top: 20px;
         }
 
         button {
-            margin-top: 20px;
-            width: 100%;
-            padding: 12px;
-            background: #007BFF;
-            color: white;
-            border: none;
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: 700;
             font-size: 16px;
-            border-radius: 8px;
+            text-transform: uppercase;
+            padding: 10px 20px;
+            background: transparent;
+            color: var(--primary-glow);
+            border: 1px solid var(--primary-glow);
+            border-radius: 5px;
             cursor: pointer;
+            transition: all 0.3s ease;
         }
 
         button:hover {
-            background: #0056b3;
+            background: var(--primary-glow);
+            color: var(--background-start);
+            box-shadow: 0 0 15px var(--primary-glow);
         }
 
-        #result {
-            margin-top: 20px;
-            font-size: 20px;
-            color: green;
-            text-align: center;
-            font-weight: bold;
+        #predictBtn {
+            background: var(--primary-glow);
+            color: var(--background-start);
+        }
+        
+        #predictBtn:hover {
+            background: var(--secondary-glow);
+            border-color: var(--secondary-glow);
+            box-shadow: 0 0 20px var(--secondary-glow);
+        }
+
+        /* --- Final Result Display --- */
+        #result-display { text-align: center; }
+        #result-display h2 { font-family: 'Exo 2', sans-serif; font-size: 32px; color: var(--secondary-glow); text-shadow: 0 0 15px var(--secondary-glow); margin: 0; }
+        #result-display p { font-size: 18px; margin: 10px 0 20px 0; }
+
+        /* --- History Button outside HUD --- */
+        .history-link {
+            position: absolute;
+            bottom: 30px;
+            right: 30px;
+            z-index: 20;
         }
     </style>
 </head>
-
 <body>
-    <div class="container">
-        <h2 style="text-align:center;">Used Bike Price Predictor</h2>
 
-        <form id="predictForm">
-            <label>Kilometers Driven:</label>
-            <input type="number" name="kms_driven" required>
+    <div class="hud-container">
+        <div class="ring ring-1"></div>
+        <div class="ring ring-2"></div>
+        <div class="ring ring-3"></div>
 
-            <label>Bike Age (in years):</label>
-            <input type="number" step="0.1" name="age" required>
+        <div class="form-core">
+            <form id="bikeForm" method="POST" action="/predict">
+                
+                <div class="form-step active" id="step1">
+                    <label for="brand">Select Brand</label>
+                    <select name="brand" id="brand" required>
+                        {% for key in brand_map.keys() %}
+                            <option value="{{ key }}">{{ key }}</option>
+                        {% endfor %}
+                    </select>
+                    <div class="navigation-buttons">
+                        <button type="button" onclick="nextStep(2)">Next</button>
+                    </div>
+                </div>
 
-            <label>Engine Power (CC):</label>
-            <input type="number" name="power" required>
+                <div class="form-step" id="step2">
+                    <label for="kms_driven">KMs Driven</label>
+                    <input type="number" step="1" name="kms_driven" required placeholder="e.g., 15000">
+                    <div class="navigation-buttons">
+                        <button type="button" onclick="prevStep(1)">Back</button>
+                        <button type="button" onclick="nextStep(3)">Next</button>
+                    </div>
+                </div>
 
-            <label>Owner Type:</label>
-            <select name="owner" required>
-                {% for owner in owner_map %}
-                <option value="{{ owner }}">{{ owner }}</option>
-                {% endfor %}
-            </select>
+                <div class="form-step" id="step3">
+                    <label for="age">Bike Age (years)</label>
+                    <input type="number" step="0.1" name="age" required placeholder="e.g., 5">
+                    <div class="navigation-buttons">
+                        <button type="button" onclick="prevStep(2)">Back</button>
+                        <button type="button" onclick="nextStep(4)">Next</button>
+                    </div>
+                </div>
+                
+                <div class="form-step" id="step4">
+                    <label for="power">Power (CC)</label>
+                    <input type="number" step="1" name="power" required placeholder="e.g., 150">
+                    <div class="navigation-buttons">
+                        <button type="button" onclick="prevStep(3)">Back</button>
+                        <button type="button" onclick="nextStep(5)">Next</button>
+                    </div>
+                </div>
 
-            <label>Brand:</label>
-            <select name="brand" required>
-                {% for brand in brand_map %}
-                <option value="{{ brand }}">{{ brand }}</option>
-                {% endfor %}
-            </select>
+                <div class="form-step" id="step5">
+                    <label for="owner">Owner Type</label>
+                    <select name="owner" required>
+                         {% for key in owner_map.keys() %}
+                            <option value="{{ key }}">{{ key }}</option>
+                        {% endfor %}
+                    </select>
+                    <div class="navigation-buttons">
+                        <button type="button" onclick="prevStep(4)">Back</button>
+                        <button id="predictBtn" type="submit">Analyze</button>
+                    </div>
+                </div>
 
-            <button type="submit">Predict Price</button>
-        </form>
-        <div style="text-align:center; margin-top: 20px;">
-            <a href="/history">📜 View Prediction History</a>
+                <div class="form-step" id="step6">
+                    <div id="result-display">
+                        <h2>ANALYSIS COMPLETE</h2>
+                        <p id="prediction_text">Calculating value...</p>
+                        <div class="navigation-buttons">
+                            <button type="button" onclick="resetForm()">Start Over</button>
+                        </div>
+                    </div>
+                </div>
+
+            </form>
         </div>
-        
-
-
-
-        <div id="result"></div>
+    </div>
+    
+    <div class="history-link">
+        <a href="/history"><button>View History Log</button></a>
     </div>
 
-    <script>
-        document.getElementById('predictForm').addEventListener('submit', function (e) {
-            e.preventDefault();  // prevent form from reloading the page
+<script>
+    let currentStep = 1;
 
-            const formData = new FormData(this);
-            const data = {
-                kms_driven: formData.get('kms_driven'),
-                age: formData.get('age'),
-                power: formData.get('power'),
-                owner: formData.get('owner'),
-                brand: formData.get('brand')
-            };
+    function showStep(stepNumber) {
+        document.querySelectorAll('.form-step').forEach(step => step.classList.remove('active'));
+        document.getElementById(`step${stepNumber}`).classList.add('active');
+    }
 
-            fetch('/predict_api', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(data)
-            })
-                .then(res => res.json())
-                .then(result => {
-                    if (result.price !== undefined) {
-                        document.getElementById('result').innerText = `Predicted Bike Price: ₹${result.price}`;
-                    } else {
-                        document.getElementById('result').innerText = `Error: ${result.error}`;
-                    }
-                });
+    function nextStep(stepNumber) {
+        currentStep = stepNumber;
+        showStep(currentStep);
+    }
+
+    function prevStep(stepNumber) {
+        currentStep = stepNumber;
+        showStep(currentStep);
+    }
+    
+    function resetForm() {
+        document.getElementById('bikeForm').reset();
+        currentStep = 1;
+        showStep(currentStep);
+    }
+
+    // Handle form submission with JavaScript to stay on the page
+    document.getElementById('bikeForm').addEventListener('submit', function(e) {
+        e.preventDefault(); // Stop the form from submitting the traditional way
+        
+        nextStep(6); // Show the result step
+        const resultText = document.getElementById('prediction_text');
+        resultText.textContent = "Analyzing...";
+
+        const formData = new FormData(this);
+        
+        // Use Fetch API to send data to your Flask backend
+        fetch('/predict', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json()) // Expect a JSON response
+        .then(data => {
+            if(data.error) {
+                resultText.textContent = `Error: ${data.error}`;
+            } else {
+                resultText.innerHTML = `ESTIMATED VALUE:<br><span style="font-size: 2em; color: var(--secondary-glow);">${data.prediction_text}</span>`;
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            resultText.textContent = 'Failed to get prediction.';
         });
-    </script>
-</body>
+    });
 
+</script>
+</body>
 </html>
-
-<!-- <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Used Bike Price Predictor</title>
-    <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #f4f4f4;
-            margin: 0;
-            padding: 0;
-            animation: fadeIn 1s ease;
-        }
-
-        @keyframes fadeIn {
-            0% { opacity: 0; transform: translateY(-20px); }
-            100% { opacity: 1; transform: translateY(0); }
-        }
-
-        .container {
-            max-width: 500px;
-            background: white;
-            margin: 60px auto;
-            padding: 30px 40px;
-            border-radius: 12px;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-            animation: slideUp 1s ease;
-        }
-
-        @keyframes slideUp {
-            0% { opacity: 0; transform: translateY(30px); }
-            100% { opacity: 1; transform: translateY(0); }
-        }
-
-        h2 {
-            text-align: center;
-            color: #333;
-            margin-bottom: 25px;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 6px;
-            color: #555;
-        }
-
-        input[type="number"],
-        select {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 20px;
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            font-size: 16px;
-        }
-
-        input[type="submit"] {
-            width: 100%;
-            padding: 12px;
-            background-color: #007BFF;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            cursor: pointer;
-            transition: transform 0.3s ease, background 0.3s ease;
-        }
-
-        input[type="submit"]:hover {
-            background-color: #0056b3;
-            transform: scale(1.03);
-        }
-    </style>
-</head>
-<body>
-<div class="container">
-    <h2>Used Bike Price Predictor</h2>
-    <form action="/predict" method="post">
-        <label>Kilometers Driven:</label>
-        <input type="number" name="kms_driven" required>
-
-        <label>Bike Age (in years):</label>
-        <input type="number" step="0.1" name="age" required>
-
-        <label>Engine Power (in CC):</label>
-        <input type="number" name="power" required>
-
-        <label>Owner Type:</label>
-        <select name="owner" required>
-            {% for owner_name in owner_map %}
-                <option value="{{ owner_name }}">{{ owner_name }}</option>
-            {% endfor %}
-        </select>
-
-        <label>Bike Brand:</label>
-        <select name="brand" required>
-            {% for brand_name in brand_map %}
-                <option value="{{ brand_name }}">{{ brand_name }}</option>
-            {% endfor %}
-        </select>
-
-        <input type="submit" value="Predict Price">
-    </form>
-</div>
-</body>
-</html> -->
