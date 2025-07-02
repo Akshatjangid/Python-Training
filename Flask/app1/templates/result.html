@@ -1,3 +1,4 @@
+<!-- result.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -5,60 +6,52 @@
     <title>Prediction Result</title>
     <style>
         body {
-            background: #f4f4f4;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            animation: fadeIn 1s ease;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: scale(0.95); }
-            to   { opacity: 1; transform: scale(1); }
-        }
-
-        .card {
-            background: white;
-            padding: 40px 50px;
-            border-radius: 15px;
+            font-family: 'Segoe UI', sans-serif;
+            background: #f4f6f8;
             text-align: center;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-            animation: bounceIn 0.8s ease;
+            padding: 50px;
         }
 
-        @keyframes bounceIn {
-            0% { transform: scale(0.9); opacity: 0; }
-            50% { transform: scale(1.05); opacity: 0.7; }
-            100% { transform: scale(1); opacity: 1; }
+        .result-box {
+            background: white;
+            display: inline-block;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
         }
 
-        h2 {
-            color: #28a745;
-            font-size: 28px;
+        h1 {
+            color: #333;
+        }
+
+        p {
+            font-size: 20px;
+            color: green;
+            margin-top: 20px;
+            font-weight: bold;
         }
 
         a {
             display: inline-block;
-            margin-top: 20px;
+            margin-top: 30px;
+            padding: 12px 24px;
+            background-color: #007BFF;
+            color: white;
             text-decoration: none;
-            color: #007BFF;
-            font-size: 16px;
-            transition: color 0.3s ease;
+            border-radius: 8px;
+            transition: background-color 0.3s ease;
         }
 
         a:hover {
-            text-decoration: underline;
-            color: #0056b3;
+            background-color: #0056b3;
         }
     </style>
 </head>
 <body>
-<div class="card">
-    <h2>{{ prediction_text }}</h2>
-    <a href="/">Predict Another</a><br>
-    <a href="/history">View Prediction History</a>
-</div>
+    <div class="result-box">
+        <h1>Prediction Complete ✅</h1>
+        <p>{{ prediction_text }}</p>
+        <a href="/">🔙 Back to Home</a>
+    </div>
 </body>
 </html>
