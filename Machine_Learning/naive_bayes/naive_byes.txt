@@ -1,0 +1,7 @@
+>> naive byes is a suoervised maxnne learning algo based on bayes's theorme.it is cakkwd "naivebecausw it is assume indepwndence 
+
+BAYES THEORME FORMULA
+this theorme calculate thr probability of hypothsis (class ) given some observed evodence
+
+P(C|X)= P(X|C).P(C)/P(X)
+
