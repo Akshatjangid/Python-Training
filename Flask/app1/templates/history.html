@@ -5,6 +5,176 @@
     <title>Prediction History Log</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Teko:wght@500;700&family=Electrolize&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --glow-color: #00ffff;
+            --accent-color: #ff5722;
+            --text-color: #e0e0e0;
+            --background-start: #020a16;
+            --background-end: #010409;
+            --border-color: rgba(0, 255, 255, 0.25);
+            --header-bg: rgba(0, 255, 255, 0.1);
+            --row-hover: rgba(0, 255, 255, 0.08);
+            --btn-delete-bg: #e53935;
+            --btn-export-bg: #1e88e5;
+        }
+
+        body {
+            font-family: 'Electrolize', sans-serif;
+            background-color: var(--background-end);
+            background-image: linear-gradient(180deg, var(--background-start) 0%, var(--background-end) 100%);
+            color: var(--text-color);
+            padding: 40px;
+            margin: 0;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: auto;
+        }
+
+        h1 {
+            font-family: 'Teko', sans-serif;
+            font-size: 48px;
+            font-weight: 700;
+            color: var(--glow-color);
+            text-align: center;
+            text-transform: uppercase;
+            text-shadow: 0 0 15px var(--glow-color);
+            margin-bottom: 40px;
+        }
+
+        .table-container {
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.5), inset 0 0 10px var(--border-color);
+            background: rgba(15, 25, 40, 0.6);
+            backdrop-filter: blur(10px);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 15px 20px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background-color: var(--header-bg);
+            font-size: 16px;
+            font-family: 'Teko', sans-serif;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--glow-color);
+            letter-spacing: 1px;
+        }
+
+        td { font-size: 16px; }
+
+        tr { transition: background-color 0.3s ease; }
+        tr:last-child td { border-bottom: 0; }
+        tr:hover { background-color: var(--row-hover); }
+
+        .price-cell {
+            color: var(--accent-color);
+            font-weight: 700;
+            font-family: 'Teko', sans-serif;
+            font-size: 20px;
+        }
+
+        .button-container {
+            text-align: center;
+            margin-top: 40px;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .btn {
+            font-family: 'Teko', sans-serif;
+            font-weight: 700;
+            font-size: 18px;
+            text-transform: uppercase;
+            padding: 12px 30px;
+            text-decoration: none;
+            border-radius: 5px;
+            cursor: pointer;
+            border: 1px solid;
+            transition: all 0.3s ease;
+            letter-spacing: 1px;
+        }
+
+        .btn-home { background-color: transparent; color: var(--glow-color); border-color: var(--glow-color);}
+        .btn-home:hover { background-color: var(--glow-color); color: var(--background-start); box-shadow: 0 0 15px var(--glow-color); }
+
+        .btn-delete { background-color: transparent; color: var(--btn-delete-bg); border-color: var(--btn-delete-bg);}
+        .btn-delete:hover { background-color: var(--btn-delete-bg); color: #fff; box-shadow: 0 0 15px var(--btn-delete-bg); }
+
+        .btn-export { background-color: transparent; color: var(--btn-export-bg); border-color: var(--btn-export-bg); }
+        .btn-export:hover { background-color: var(--btn-export-bg); color: #fff; box-shadow: 0 0 15px var(--btn-export-bg); }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Prediction History Log</h1>
+
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Brand</th>
+                        <th>Owner</th>
+                        <th>KMs Driven</th>
+                        <th>Age</th>
+                        <th>Power (CC)</th>
+                        <th>Predicted Price</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in rows %}
+                    <tr>
+                        <td>#{{ row.id }}</td>
+                        <td>{{ row.brand }}</td>
+                        <td>{{ row.owner }}</td>
+                        <td>{{ "{:,.0f}".format(row.kms_driven) }}</td>
+                        <td>{{ row.age }}</td>
+                        <td>{{ row.power }}</td>
+                        <td class="price-cell">₹{{ '{:,.2f}'.format(row.predicted_price) }}</td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="7" style="text-align: center; padding: 50px 0; font-size: 18px; opacity: 0.7;">
+                            No predictions have been logged yet.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="button-container">
+            <a href="/" class="btn btn-home">New Analysis</a>
+            <a href="/download_csv" class="btn btn-export">Export Log</a>
+            <a href="/delete_all" class="btn btn-delete" onclick="return confirm('Are you sure you want to delete the entire log?');">Delete Log</a>
+        </div>
+    </div>
+</body>
+</html><!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Prediction History Log</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;700&family=Exo+2:ital,wght@1,900&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -153,4 +323,4 @@
         </div>
     </div>
 </body>
-</html>
+</html> -->
