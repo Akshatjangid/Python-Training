@@ -2,6 +2,390 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bike Price Explorer</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Teko:wght@500;700&family=Electrolize&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --glow-color: #00ffff; /* Cyan */
+            --accent-color: #ff5722; /* Deep Orange */
+            --text-color: #e0e0e0;
+            --panel-bg: rgba(15, 25, 40, 0.6);
+            --border-color: rgba(0, 255, 255, 0.25);
+            --shadow-color: rgba(0, 255, 255, 0.5);
+        }
+
+        body {
+            font-family: 'Electrolize', sans-serif;
+            margin: 0;
+            height: 100vh;
+            background-color: #010409;
+            color: var(--text-color);
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* --- 3D Parallax Background --- */
+        .parallax-container {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            transition: transform 0.2s ease-out;
+        }
+
+        .parallax-layer {
+            position: absolute;
+            width: 110%; height: 110%;
+            top: -5%; left: -5%;
+            background-position: center center;
+            background-repeat: no-repeat;
+            background-size: cover;
+            animation: drift 60s linear infinite alternate;
+        }
+
+        #layer-1 { /* Deepest, slowest layer */
+            background-image: url('https://www.transparenttextures.com/patterns/stardust.png'), 
+                              radial-gradient(ellipse at center, #020a16 0%, #010409 100%);
+            z-index: 1;
+        }
+
+        #layer-2 { /* Nebula Cloud */
+            background-image: url('https://assets.codepen.io/128313/nebula-blur.png');
+            z-index: 2;
+            opacity: 0.7;
+            animation-duration: 45s;
+        }
+        
+        #layer-3 { /* Stars, faster layer */
+            background-image: url('https://assets.codepen.io/128313/stars.png');
+            z-index: 3;
+            animation-duration: 30s;
+        }
+
+        @keyframes drift {
+            from { transform: translate(-2%, -2%) rotate(0deg) scale(1); }
+            to { transform: translate(2%, 2%) rotate(5deg) scale(1.05); }
+        }
+
+        /* --- Main UI Panels --- */
+        .main-grid {
+            position: relative;
+            z-index: 10;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            width: 90%;
+            max-width: 1100px;
+            height: 80vh;
+            max-height: 600px;
+            perspective: 1500px;
+        }
+        
+        .ui-panel {
+            background: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 15px;
+            backdrop-filter: blur(12px) saturate(120%);
+            -webkit-backdrop-filter: blur(12px) saturate(120%);
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 0 15px rgba(0,0,0,0.5), inset 0 0 10px var(--border-color);
+            transform: rotateY(-5deg);
+            animation: float 8s ease-in-out infinite alternate;
+            transition: all 0.4s ease;
+        }
+
+        .output-panel {
+            transform: rotateY(5deg);
+            animation-delay: -4s;
+        }
+        
+        .main-grid:hover .ui-panel {
+            transform: rotateY(0deg);
+        }
+
+        @keyframes float {
+            from { transform: translateY(-10px) rotateY(-5deg); }
+            to { transform: translateY(10px) rotateY(-5deg); }
+        }
+
+        .panel-title {
+            font-family: 'Teko', sans-serif;
+            font-size: 36px;
+            font-weight: 700;
+            color: var(--glow-color);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin: 0 0 20px 0;
+            text-shadow: 0 0 8px var(--shadow-color);
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 10px;
+        }
+
+        /* --- Form Styling --- */
+        .form-content {
+            flex-grow: 1;
+            overflow-y: auto; /* Scroll if content overflows on small heights */
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .form-field {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .full-span { grid-column: 1 / -1; }
+
+        label {
+            font-size: 14px;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+            opacity: 0.8;
+        }
+
+        input, select {
+            background: rgba(0,0,0,0.2);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            padding: 10px;
+            border-radius: 5px;
+            font-family: 'Electrolize', sans-serif;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+        select { appearance: none; }
+        select option { background-color: #020a16; }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--glow-color);
+            background-color: rgba(0, 255, 255, 0.1);
+            box-shadow: 0 0 10px var(--shadow-color);
+        }
+
+        .predict-button {
+            margin-top: 20px;
+            padding: 15px;
+            font-family: 'Teko', sans-serif;
+            font-size: 24px;
+            letter-spacing: 1px;
+            font-weight: 700;
+            background: var(--accent-color);
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            box-shadow: 0 0 20px rgba(255, 87, 34, 0.5);
+            transition: all 0.3s ease;
+        }
+
+        .predict-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 30px rgba(255, 87, 34, 0.7);
+        }
+
+        /* --- Output Panel Styling --- */
+        .output-content {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+        
+        #output-placeholder h3 {
+             font-family: 'Teko', sans-serif;
+             font-size: 28px;
+             color: var(--glow-color);
+             opacity: 0.7;
+        }
+        
+        #result-container { display: none; }
+
+        .price-label {
+            font-size: 24px;
+            text-transform: uppercase;
+        }
+        .price-value {
+            font-family: 'Teko', sans-serif;
+            font-size: 80px;
+            font-weight: 700;
+            line-height: 1;
+            color: var(--accent-color);
+            text-shadow: 0 0 15px var(--accent-color);
+            margin: 10px 0;
+        }
+        
+        /* Animation for result appearing */
+        @keyframes reveal {
+            from { opacity: 0; transform: scale(0.8); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        .reveal-animation { animation: reveal 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards; }
+        
+        .history-link a {
+            color: var(--glow-color);
+            text-decoration: none;
+            position: absolute;
+            bottom: 20px;
+            right: 30px;
+            z-index: 20;
+            font-size: 16px;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="parallax-container" id="parallax-container">
+        <div class="parallax-layer" id="layer-1" data-depth="0.1"></div>
+        <div class="parallax-layer" id="layer-2" data-depth="0.3"></div>
+        <div class="parallax-layer" id="layer-3" data-depth="0.6"></div>
+    </div>
+    
+    <a href="/history" class="history-link">VIEW HISTORY LOG ></a>
+
+    <main class="main-grid">
+        <div class="ui-panel input-panel">
+            <h2 class="panel-title">Data Input</h2>
+            <form id="bikeForm" class="form-content">
+                <div class="form-field">
+                    <label for="brand">Brand</label>
+                    <select name="brand" required>
+                        {% for key in brand_map.keys() %}
+                            <option value="{{ key }}">{{ key }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-field">
+                    <label for="owner">Owner Type</label>
+                    <select name="owner" required>
+                         {% for key in owner_map.keys() %}
+                            <option value="{{ key }}">{{ key }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-field">
+                    <label for="kms_driven">Kilometers Driven</label>
+                    <input type="number" step="1" name="kms_driven" required placeholder="e.g., 15000">
+                </div>
+                <div class="form-field">
+                    <label for="age">Bike Age (Years)</label>
+                    <input type="number" step="0.1" name="age" required placeholder="e.g., 5">
+                </div>
+                <div class="form-field full-span">
+                    <label for="power">Engine Power (CC)</label>
+                    <input type="number" step="1" name="power" required placeholder="e.g., 150">
+                </div>
+
+                <div class="form-field full-span">
+                     <button class="predict-button" type="submit">EXPLORE VALUE</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="ui-panel output-panel">
+            <h2 class="panel-title">Analysis Output</h2>
+            <div class="output-content">
+                <div id="output-placeholder">
+                    <h3>Awaiting Data Transmission...</h3>
+                </div>
+                <div id="result-container">
+                    <p class="price-label">Estimated Market Value</p>
+                    <h1 class="price-value" id="prediction_text">--</h1>
+                </div>
+            </div>
+        </div>
+    </main>
+
+<script>
+    // --- 3D Parallax Mouse Movement ---
+    const parallaxContainer = document.getElementById('parallax-container');
+    window.addEventListener('mousemove', function(e) {
+        const { clientX, clientY } = e;
+        const x = -(clientX - window.innerWidth / 2) / 40;
+        const y = -(clientY - window.innerHeight / 2) / 40;
+        parallaxContainer.style.transform = `translate(${x}px, ${y}px)`;
+    });
+
+
+    // --- Form Submission and Live Update ---
+    const bikeForm = document.getElementById('bikeForm');
+    const outputPlaceholder = document.getElementById('output-placeholder');
+    const resultContainer = document.getElementById('result-container');
+    const predictionText = document.getElementById('prediction_text');
+
+    bikeForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        // Show loading state
+        outputPlaceholder.style.display = 'block';
+        outputPlaceholder.innerHTML = '<h3>Analyzing Trajectory...</h3>';
+        resultContainer.style.display = 'none';
+
+        const formData = new FormData(this);
+
+        fetch('/predict', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            outputPlaceholder.style.display = 'none';
+            resultContainer.style.display = 'block';
+            resultContainer.classList.add('reveal-animation');
+
+            if(data.error) {
+                predictionText.textContent = 'Error';
+            } else {
+                // Animate number count up
+                const finalPrice = parseFloat(data.prediction_text.replace('₹', '').replace(/,/g, ''));
+                animateValue(predictionText, 0, finalPrice, 1000);
+            }
+        })
+        .catch(error => {
+            outputPlaceholder.innerHTML = '<h3>Transmission Error!</h3>';
+            console.error('Error:', error);
+        });
+        
+        // Remove animation class after it finishes to allow re-triggering
+        resultContainer.addEventListener('animationend', () => {
+            resultContainer.classList.remove('reveal-animation');
+        }, { once: true });
+    });
+
+    // --- Number Count-Up Animation Function ---
+    function animateValue(obj, start, end, duration) {
+        let startTimestamp = null;
+        const step = (timestamp) => {
+            if (!startTimestamp) startTimestamp = timestamp;
+            const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+            const currentValue = Math.floor(progress * (end - start) + start);
+            obj.innerHTML = `₹${currentValue.toLocaleString('en-IN')}`;
+            if (progress < 1) {
+                window.requestAnimationFrame(step);
+            } else {
+                 obj.innerHTML = `₹${end.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+            }
+        };
+        window.requestAnimationFrame(step);
+    }
+</script>
+
+</body>
+</html>
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
     <title>Bike Valuator HUD</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -303,4 +687,4 @@
 
 </script>
 </body>
-</html>
+</html> -->
